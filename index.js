@@ -1,35 +1,50 @@
 const express = require("express");
-const { fal } = require("@fal-ai/client");
+const { OpenAI } = require("openai");
 
 const app = express();
-const PORT = 3000;
-const FAL_API_KEY = "5bc94134-46b7-40f6-b4b0-3be3e131117a:585abd893ed441ae5a30ca208f84816c"; // Remplace par ta vraie clé API
+const port = 5000;
 
-fal.config({ credentials: FAL_API_KEY });
-
-app.get("/generate-image", async (req, res) => {
-  try {
-    const prompt = req.query.prompt;
-    if (!prompt) {
-      return res.status(400).json({ error: "Le paramètre 'prompt' est requis." });
-    }
-
-    const result = await fal.subscribe("fal-ai/fast-sdxl", {
-      input: { prompt },
-      logs: true,
-    });
-
-    // Accéder directement à l'URL de l'image dans le tableau "images"
-    const imageUrl = result.data.images[0].url;
-
-    // Renvoi uniquement l'URL de l'image dans la réponse
-    res.json({ imageUrl });
-  } catch (error) {
-    console.error("Erreur lors de la génération d’image :", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
-  }
+// Remplacez par votre clé API
+const client = new OpenAI({
+    apiKey: "g4a-zJF4KYeXnOtJSeD6wPO8kOcnKMjORJBx4M2",
+    baseURL: "https://api.gpt4-all.xyz/v1"
 });
 
-app.listen(PORT, () => {
-  console.log(`Serveur lancé sur http://localhost:${PORT}`);
+app.get("/text", async (req, res) => {
+    const prompt = req.query.prompt;
+    if (!prompt) {
+        return res.status(400).json({ error: "Missing 'prompt' parameter" });
+    }
+
+    try {
+        const response = await client.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
+            stream: false,
+        });
+        res.json({ response: response.choices[0].message.content });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get("/image", async (req, res) => {
+    const prompt = req.query.prompt;
+    if (!prompt) {
+        return res.status(400).json({ error: "Missing 'prompt' parameter" });
+    }
+
+    try {
+        const response = await client.images.generate({
+            model: "dall-e-3",
+            prompt: prompt,
+        });
+        res.json({ response: response.data });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
 });
