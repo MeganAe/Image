@@ -7,7 +7,7 @@ const FAL_API_KEY = "5bc94134-46b7-40f6-b4b0-3be3e131117a:585abd893ed441ae5a30ca
 
 fal.config({ credentials: FAL_API_KEY });
 
-app.get("/generate-image", async (req, res) => {
+app.get("/image", async (req, res) => {
   try {
     const prompt = req.query.prompt;
     if (!prompt) {
