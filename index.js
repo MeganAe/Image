@@ -7,7 +7,7 @@ const FAL_API_KEY = "5bc94134-46b7-40f6-b4b0-3be3e131117a:585abd893ed441ae5a30ca
 
 fal.config({ credentials: FAL_API_KEY });
 
-app.get("/image", async (req, res) => {
+app.get("/generate-image", async (req, res) => {
   try {
     const prompt = req.query.prompt;
     if (!prompt) {
@@ -19,8 +19,8 @@ app.get("/image", async (req, res) => {
       logs: true,
     });
 
-    // Extraire l'URL de l'image générée
-    const imageUrl = result.data;
+    // Accéder directement à l'URL de l'image dans le tableau "images"
+    const imageUrl = result.data.images[0].url;
 
     // Renvoi uniquement l'URL de l'image dans la réponse
     res.json({ imageUrl });
